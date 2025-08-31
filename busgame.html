@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Navigator Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: containerGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes containerGlow {
+            0% { box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2), 0 0 30px rgba(102, 126, 234, 0.1); }
+            100% { box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3), 0 0 50px rgba(102, 126, 234, 0.2); }
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            font-size: 3.5rem;
+            font-weight: 900;
+            font-family: 'Orbitron', monospace;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            background: linear-gradient(45deg, #fff, #667eea, #764ba2);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textGlow 2s ease-in-out infinite alternate;
+            position: relative;
+        }
+
+        h1::before {
+            content: '🚌';
+            position: absolute;
+            left: -80px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2.5rem;
+            animation: busHover 2s ease-in-out infinite;
+        }
+
+        @keyframes textGlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        @keyframes busHover {
+            0%, 100% { transform: translateY(-50%) translateX(0px); }
+            50% { transform: translateY(-60%) translateX(10px); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(86, 171, 47, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #f1c40f);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(243, 156, 18, 0.4);
+        }
+
+        .game-area {
+            display: flex;
+            gap: 40px;
+            align-items: stretch;
+        }
+
+        .canvas-container {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: inset 0 8px 30px rgba(0, 0, 0, 0.1), 0 0 40px rgba(255, 255, 255, 0.1);
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .canvas-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            border-radius: 27px;
+            z-index: -1;
+            animation: borderGlow 4s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        #gameCanvas {
+            border: 3px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            cursor: crosshair;
+            background: linear-gradient(45deg, #f8f9fa 25%, rgba(255, 255, 255, 0.5) 25%, rgba(255, 255, 255, 0.5) 75%, #f8f9fa 75%, #f8f9fa),
+                        linear-gradient(45deg, #f8f9fa 25%, rgba(255, 255, 255, 0.5) 25%, rgba(255, 255, 255, 0.5) 75%, #f8f9fa 75%, #f8f9fa);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        #gameCanvas:hover {
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+            transform: scale(1.02);
+        }
+
+        .info-panel {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            color: white;
+            position: relative;
+        }
+
+        .mode-indicator {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            animation: pulse 2s infinite;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .status {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status h3 {
+            margin-bottom: 10px;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .instructions {
+            background: rgba(255, 243, 205, 0.2);
+            border: 1px solid rgba(255, 234, 167, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .instructions h3 {
+            color: #fff3cd;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .instructions ul {
+            color: rgba(255, 255, 255, 0.9);
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .instructions li::before {
+            content: '⚡';
+            position: absolute;
+            left: -20px;
+            color: #f1c40f;
+        }
+
+        .legend {
+            background: rgba(227, 242, 253, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .legend h3 {
+            color: #e3f2fd;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .legend-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+
+        .legend-color {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            margin-right: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            animation: colorPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes colorPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Canvas effects */
+        .canvas-glow {
+            animation: canvasGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes canvasGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.3)); }
+            100% { filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.6)); }
+        }
+
+        /* Success animation */
+        .success-flash {
+            animation: successFlash 0.5s ease-out;
+        }
+
+        @keyframes successFlash {
+            0% { background-color: rgba(76, 175, 80, 0.3); }
+            100% { background-color: transparent; }
+        }
+
+        /* Error animation */
+        .error-shake {
+            animation: errorShake 0.5s ease-out;
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Loading dots animation */
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots::after {
+            content: '...';
+            animation: loadingDots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes loadingDots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 1200px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .info-panel {
+                width: 100%;
+            }
+            
+            #gameCanvas {
+                width: 100%;
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            button {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated particles background -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <h1>Bus Navigator Game</h1>
+        
+        <div class="controls">
+            <button id="addStopBtn" class="btn-primary">🚏 Add Bus Stop</button>
+            <button id="connectBtn" class="btn-success">🔗 Connect Routes</button>
+            <button id="blockBtn" class="btn-danger">🚫 Block Path</button>
+            <button id="navigateBtn" class="btn-warning">🧭 Navigate Bus</button>
+            <button id="clearBtn" class="btn-danger">🗑️ Clear All</button>
+            <button id="presetBtn" class="btn-primary">🏙️ Load Preset</button>
+        </div>
+
+        <div class="game-area">
+            <div class="canvas-container">
+                <canvas id="gameCanvas" width="900" height="650"></canvas>
+            </div>
+
+            <div class="info-panel">
+                <div class="mode-indicator" id="modeIndicator">
+                    Click "Add Bus Stop" to start
+                </div>
+
+                <div class="status">
+                    <h3>🎮 Game Status</h3>
+                    <div id="statusText">Ready to play!</div>
+                </div>
+
+                <div class="legend">
+                    <h3>🎨 Legend</h3>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #4CAF50, #81C784);"></div>
+                        <span>Bus Stops</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #2196F3, #64B5F6);"></div>
+                        <span>Active Routes</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #f44336, #EF5350);"></div>
+                        <span>Blocked Routes</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #FF9800, #FFB74D);"></div>
+                        <span>Bus</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #9C27B0, #BA68C8);"></div>
+                        <span>Shortest Path</span>
+                    </div>
+                </div>
+
+                <div class="instructions">
+                    <h3>📖 How to Play</h3>
+                    <ul>
+                        <li>Add bus stops by clicking on the canvas</li>
+                        <li>Connect stops by clicking two stops in sequence</li>
+                        <li>Block routes by clicking on them</li>
+                        <li>Navigate by selecting start and end stops</li>
+                        <li>Watch the bus find the shortest path!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create animated particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        class BusNavigator {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.stops = [];
+                this.routes = [];
+                this.blockedRoutes = new Set();
+                this.mode = 'idle';
+                this.selectedStops = [];
+                this.currentPath = [];
+                this.busPosition = null;
+                this.animationId = null;
+                this.sparkles = [];
+                this.routeAnimations = new Map();
+
+                this.initializeEventListeners();
+                this.startSparkleAnimation();
+                this.draw();
+            }
+
+            initializeEventListeners() {
+                // Button event listeners
+                document.getElementById('addStopBtn').addEventListener('click', () => this.setMode('addStop'));
+                document.getElementById('connectBtn').addEventListener('click', () => this.setMode('connect'));
+                document.getElementById('blockBtn').addEventListener('click', () => this.setMode('block'));
+                document.getElementById('navigateBtn').addEventListener('click', () => this.setMode('navigate'));
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearAll());
+                document.getElementById('presetBtn').addEventListener('click', () => this.loadPreset());
+
+                // Canvas event listeners
+                this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
+                this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+            }
+
+            handleMouseMove(e) {
+                if (this.mode === 'addStop') {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    this.addSparkle(x, y);
+                }
+            }
+
+            addSparkle(x, y) {
+                this.sparkles.push({
+                    x: x + (Math.random() - 0.5) * 40,
+                    y: y + (Math.random() - 0.5) * 40,
+                    life: 30,
+                    maxLife: 30,
+                    color: `hsl(${Math.random() * 360}, 70%, 60%)`
+                });
+            }
+
+            startSparkleAnimation() {
+                const animateSparkles = () => {
+                    this.sparkles = this.sparkles.filter(sparkle => sparkle.life > 0);
+                    this.sparkles.forEach(sparkle => sparkle.life--);
+                    this.draw();
+                    requestAnimationFrame(animateSparkles);
+                };
+                animateSparkles();
+            }
+
+            setMode(newMode) {
+                this.mode = newMode;
+                this.selectedStops = [];
+                this.updateModeIndicator();
+                this.addModeChangeEffect();
+                this.draw();
+            }
+
+            addModeChangeEffect() {
+                const canvas = this.canvas;
+                canvas.classList.add('canvas-glow');
+                setTimeout(() => canvas.classList.remove('canvas-glow'), 1000);
+            }
+
+            updateModeIndicator() {
+                const indicator = document.getElementById('modeIndicator');
+                const modes = {
+                    'idle': '🎯 Select an action',
+                    'addStop': '🚏 Click to add bus stops',
+                    'connect': '🔗 Click two stops to connect',
+                    'block': '🚫 Click routes to block them',
+                    'navigate': '🧭 Select start and end stops'
+                };
+                indicator.textContent = modes[this.mode] || 'Unknown mode';
+            }
+
+            updateStatus(text, type = 'info') {
+                const statusElement = document.getElementById('statusText');
+                statusElement.textContent = text;
+                
+                // Add visual feedback
+                if (type === 'success') {
+                    statusElement.parentElement.classList.add('success-flash');
+                    setTimeout(() => statusElement.parentElement.classList.remove('success-flash'), 500);
+                } else if (type === 'error') {
+                    statusElement.parentElement.classList.add('error-shake');
+                    setTimeout(() => statusElement.parentElement.classList.remove('error-shake'), 500);
+                }
+            }
+
+            handleCanvasClick(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // Add click effect
+                this.addClickEffect(x, y);
+
+                switch (this.mode) {
+                    case 'addStop':
+                        this.addStop(x, y);
+                        break;
+                    case 'connect':
+                        this.handleConnect(x, y);
+                        break;
+                    case 'block':
+                        this.handleBlock(x, y);
+                        break;
+                    case 'navigate':
+                        this.handleNavigate(x, y);
+                        break;
+                }
+            }
+
+            addClickEffect(x, y) {
+                for (let i = 0; i < 10; i++) {
+                    this.sparkles.push({
+                        x: x + (Math.random() - 0.5) * 60,
+                        y: y + (Math.random() - 0.5) * 60,
+                        life: 40,
+                        maxLife: 40,
+                        color: `hsl(${Math.random() * 360}, 80%, 70%)`
+                    });
+                }
+            }
+
+            addStop(x, y) {
+                // Check if click is too close to existing stops
+                for (let stop of this.stops) {
+                    const distance = Math.sqrt((stop.x - x) ** 2 + (stop.y - y) ** 2);
+                    if (distance < 60) {
+                        this.updateStatus('Too close to existing stop! 🚫', 'error');
+                        return;
+                    }
+                }
+
+                const stopNames = [
+                    'Central Station', 'Mall Plaza', 'Hospital', 'School District', 'City Park',
+                    'Airport', 'Beach Resort', 'Stadium', 'University', 'Shopping Center',
+                    'Tech Hub', 'Art Gallery', 'Library', 'Museum', 'Business District'
+                ];
+
+                const newStop = {
+                    id: this.stops.length,
+                    x: x,
+                    y: y,
+                    name: stopNames[this.stops.length] || `Stop ${this.stops.length + 1}`,
+                    pulsePhase: Math.random() * Math.PI * 2
+                };
+
+                this.stops.push(newStop);
+                this.updateStatus(`Added ${newStop.name} ✨`, 'success');
+                
+                // Add creation effect
+                for (let i = 0; i < 20; i++) {
+                    this.sparkles.push({
+                        x: x + (Math.random() - 0.5) * 100,
+                        y: y + (Math.random() - 0.5) * 100,
+                        life: 60,
+                        maxLife: 60,
+                        color: '#4CAF50'
+                    });
+                }
+                
+                this.draw();
+            }
+
+            handleConnect(x, y) {
+                const clickedStop = this.getStopAt(x, y);
+                if (!clickedStop) return;
+
+                if (this.selectedStops.length === 0) {
+                    this.selectedStops.push(clickedStop);
+                    this.updateStatus(`Selected ${clickedStop.name}. Select another stop to connect. 🔗`);
+                } else if (this.selectedStops.length === 1) {
+                    if (this.selectedStops[0].id !== clickedStop.id) {
+                        this.connectStops(this.selectedStops[0], clickedStop);
+                        this.selectedStops = [];
+                        this.updateStatus('Stops connected! ⚡', 'success');
+                    } else {
+                        this.updateStatus('Cannot connect stop to itself! 🚫', 'error');
+                    }
+                }
+                this.draw();
+            }
+
+            handleBlock(x, y) {
+                const route = this.getRouteAt(x, y);
+                if (route) {
+                    const routeKey = `${Math.min(route.from.id, route.to.id)}-${Math.max(route.from.id, route.to.id)}`;
+                    if (this.blockedRoutes.has(routeKey)) {
+                        this.blockedRoutes.delete(routeKey);
+                        this.updateStatus('Route unblocked! ✅', 'success');
+                    } else {
+                        this.blockedRoutes.add(routeKey);
+                        this.updateStatus('Route blocked! 🚫', 'success');
+                    }
+                    this.draw();
+                }
+            }
+
+            handleNavigate(x, y) {
+                const clickedStop = this.getStopAt(x, y);
+                if (!clickedStop) return;
+
+                if (this.selectedStops.length === 0) {
+                    this.selectedStops.push(clickedStop);
+                    this.updateStatus(`Start: ${clickedStop.name}. Select destination. 🎯`);
+                } else if (this.selectedStops.length === 1) {
+                    if (this.selectedStops[0].id !== clickedStop.id) {
+                        this.updateStatus('Calculating route... 🔄', 'info');
+                        // Remove the setTimeout and call immediately
+                        this.findPath(this.selectedStops[0], clickedStop);
+                        this.selectedStops = [];
+                    } else {
+                        this.updateStatus('Start and destination cannot be the same! 🚫', 'error');
+                    }
+                }
+                this.draw();
+            }
+
+            connectStops(stop1, stop2) {
+                // Check if connection already exists
+                const exists = this.routes.some(route => 
+                    (route.from.id === stop1.id && route.to.id === stop2.id) ||
+                    (route.from.id === stop2.id && route.to.id === stop1.id)
+                );
+
+                if (!exists) {
+                    const distance = Math.sqrt((stop1.x - stop2.x) ** 2 + (stop1.y - stop2.y) ** 2);
+                    const newRoute = {
+                        from: stop1,
+                        to: stop2,
+                        weight: Math.round(distance),
+                        animationPhase: 0
+                    };
+                    this.routes.push(newRoute);
+                    
+                    // Add route creation animation
+                    this.routeAnimations.set(`${stop1.id}-${stop2.id}`, {
+                        progress: 0,
+                        duration: 30
+                    });
+                }
+            }
+
+            getStopAt(x, y) {
+                const radius = 30;
+                return this.stops.find(stop => {
+                    const distance = Math.sqrt((stop.x - x) ** 2 + (stop.y - y) ** 2);
+                    return distance <= radius;
+                });
+            }
+
+            getRouteAt(x, y) {
+                const threshold = 15;
+                return this.routes.find(route => {
+                    const distance = this.pointToLineDistance(x, y, route.from.x, route.from.y, route.to.x, route.to.y);
+                    return distance <= threshold;
+                });
+            }
+
+            pointToLineDistance(px, py, x1, y1, x2, y2) {
+                const A = px - x1;
+                const B = py - y1;
+                const C = x2 - x1;
+                const D = y2 - y1;
+                const dot = A * C + B * D;
+                const lenSq = C * C + D * D;
+                
+                if (lenSq === 0) return Math.sqrt(A * A + B * B);
+                const param = dot / lenSq;
+
+                let xx, yy;
+                if (param < 0) {
+                    xx = x1;
+                    yy = y1;
+                } else if (param > 1) {
+                    xx = x2;
+                    yy = y2;
+                } else {
+                    xx = x1 + param * C;
+                    yy = y1 + param * D;
+                }
+
+                const dx = px - xx;
+                const dy = py - yy;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            findPath(start, end) {
+                console.log('Finding path from', start.name, 'to', end.name);
+                console.log('Available routes:', this.routes.length);
+                console.log('Blocked routes:', this.blockedRoutes);
+
+                if (this.stops.length < 2) {
+                    this.updateStatus('Need at least 2 stops! 🚫', 'error');
+                    return;
+                }
+
+                if (this.routes.length === 0) {
+                    this.updateStatus('No routes available! Connect some stops first! 🚫', 'error');
+                    return;
+                }
+
+                // Build adjacency list for easier pathfinding
+                const graph = {};
+                this.stops.forEach(stop => {
+                    graph[stop.id] = [];
+                });
+
+                this.routes.forEach(route => {
+                    const routeKey = `${Math.min(route.from.id, route.to.id)}-${Math.max(route.from.id, route.to.id)}`;
+                    if (!this.blockedRoutes.has(routeKey)) {
+                        graph[route.from.id].push({ node: route.to.id, weight: route.weight });
+                        graph[route.to.id].push({ node: route.from.id, weight: route.weight });
+                    }
+                });
+
+                console.log('Graph:', graph);
+
+                // Dijkstra's algorithm
+                const distances = {};
+                const previous = {};
+                const unvisited = new Set();
+
+                this.stops.forEach(stop => {
+                    distances[stop.id] = stop.id === start.id ? 0 : Infinity;
+                    previous[stop.id] = null;
+                    unvisited.add(stop.id);
+                });
+
+                while (unvisited.size > 0) {
+                    // Find unvisited node with minimum distance
+                    let current = null;
+                    let minDistance = Infinity;
+                    
+                    for (let nodeId of unvisited) {
+                        if (distances[nodeId] < minDistance) {
+                            minDistance = distances[nodeId];
+                            current = nodeId;
+                        }
+                    }
+
+                    if (current === null || distances[current] === Infinity) {
+                        console.log('No more reachable nodes');
+                        break;
+                    }
+
+                    unvisited.delete(current);
+                    
+                    if (current === end.id) {
+                        console.log('Reached destination!');
+                        break;
+                    }
+
+                    // Check all neighbors of current node
+                    if (graph[current]) {
+                        graph[current].forEach(neighbor => {
+                            if (unvisited.has(neighbor.node)) {
+                                const alt = distances[current] + neighbor.weight;
+                                if (alt < distances[neighbor.node]) {
+                                    distances[neighbor.node] = alt;
+                                    previous[neighbor.node] = current;
+                                }
+                            }
+                        });
+                    }
+                }
+
+                console.log('Final distances:', distances);
+                console.log('Previous:', previous);
+
+                if (distances[end.id] === Infinity) {
+                    this.updateStatus('No path possible! Check connections and blocked routes! 🚫', 'error');
+                    this.currentPath = [];
+                    this.busPosition = null;
+                } else {
+                    // Reconstruct path
+                    const path = [];
+                    let current = end.id;
+                    while (current !== null) {
+                        path.unshift(this.stops.find(s => s.id === current));
+                        current = previous[current];
+                    }
+                    
+                    console.log('Path found:', path.map(s => s.name));
+                    this.currentPath = path;
+                    this.animateBus();
+                    this.updateStatus(`🎉 Path found! Distance: ${Math.round(distances[end.id])} units`, 'success');
+                }
+                this.draw();
+            }
+
+            animateBus() {
+                if (this.currentPath.length < 2) return;
+
+                // Stop any existing animation
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+
+                let currentIndex = 0;
+                this.busPosition = { 
+                    x: this.currentPath[0].x, 
+                    y: this.currentPath[0].y, 
+                    trail: [] 
+                };
+
+                const animate = () => {
+                    if (currentIndex >= this.currentPath.length - 1) {
+                        this.updateStatus('🚌 Bus reached destination! Journey complete! 🎯', 'success');
+                        // Add celebration sparkles
+                        for (let i = 0; i < 30; i++) {
+                            this.sparkles.push({
+                                x: this.busPosition.x + (Math.random() - 0.5) * 100,
+                                y: this.busPosition.y + (Math.random() - 0.5) * 100,
+                                life: 60,
+                                maxLife: 60,
+                                color: `hsl(${Math.random() * 60 + 40}, 80%, 60%)`
+                            });
+                        }
+                        return;
+                    }
+
+                    const start = this.currentPath[currentIndex];
+                    const end = this.currentPath[currentIndex + 1];
+                    const steps = 60;
+                    let step = 0;
+
+                    const moveStep = () => {
+                        if (step <= steps) {
+                            const t = step / steps;
+                            // Smooth easing function for natural movement
+                            const easedT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+                            
+                            const newX = start.x + (end.x - start.x) * easedT;
+                            const newY = start.y + (end.y - start.y) * easedT;
+                            
+                            // Add to trail
+                            if (this.busPosition.trail) {
+                                this.busPosition.trail.push({
+                                    x: this.busPosition.x, 
+                                    y: this.busPosition.y, 
+                                    life: 20
+                                });
+                                this.busPosition.trail = this.busPosition.trail.filter(point => point.life-- > 0);
+                            }
+                            
+                            this.busPosition.x = newX;
+                            this.busPosition.y = newY;
+                            
+                            // Add movement sparkles occasionally
+                            if (step % 5 === 0) {
+                                this.sparkles.push({
+                                    x: newX + (Math.random() - 0.5) * 30,
+                                    y: newY + (Math.random() - 0.5) * 30,
+                                    life: 15,
+                                    maxLife: 15,
+                                    color: '#FF9800'
+                                });
+                            }
+                            
+                            this.draw();
+                            step++;
+                            this.animationId = requestAnimationFrame(moveStep);
+                        } else {
+                            // Move to next segment
+                            currentIndex++;
+                            this.animationId = requestAnimationFrame(animate);
+                        }
+                    };
+                    moveStep();
+                };
+                animate();
+            }
+
+            clearAll() {
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+                this.stops = [];
+                this.routes = [];
+                this.blockedRoutes.clear();
+                this.selectedStops = [];
+                this.currentPath = [];
+                this.busPosition = null;
+                this.sparkles = [];
+                this.routeAnimations.clear();
+                this.mode = 'idle';
+                this.updateModeIndicator();
+                this.updateStatus('✨ All cleared! Ready for a new adventure!', 'success');
+                this.draw();
+            }
+
+            loadPreset() {
+                this.clearAll();
+
+                const presetStops = [
+                    { x: 150, y: 120, name: 'Central Station' },
+                    { x: 400, y: 80, name: 'Tech Hub' },
+                    { x: 650, y: 140, name: 'Hospital' },
+                    { x: 200, y: 280, name: 'University' },
+                    { x: 450, y: 250, name: 'City Park' },
+                    { x: 700, y: 300, name: 'Airport' },
+                    { x: 150, y: 450, name: 'Beach Resort' },
+                    { x: 400, y: 420, name: 'Stadium' },
+                    { x: 650, y: 480, name: 'Art Gallery' },
+                    { x: 350, y: 550, name: 'Shopping Mall' }
+                ];
+
+                presetStops.forEach((stop, index) => {
+                    this.stops.push({
+                        id: index,
+                        x: stop.x,
+                        y: stop.y,
+                        name: stop.name,
+                        pulsePhase: Math.random() * Math.PI * 2
+                    });
+                });
+
+                const connections = [
+                    [0, 1], [1, 2], [0, 3], [1, 4], [2, 5],
+                    [3, 4], [4, 5], [3, 6], [4, 7], [5, 8],
+                    [6, 7], [7, 8], [7, 9], [6, 9], [4, 8]
+                ];
+
+                connections.forEach(([from, to]) => {
+                    this.connectStops(this.stops[from], this.stops[to]);
+                });
+
+                this.updateStatus('🏙️ Beautiful city network loaded! Start exploring!', 'success');
+                this.draw();
+            }
+
+            draw() {
+                // Clear canvas with gradient background
+                const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+                gradient.addColorStop(0, 'rgba(248, 249, 250, 0.95)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0.95)');
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Draw sparkles
+                this.drawSparkles();
+
+                // Update route animations
+                this.routeAnimations.forEach((animation, key) => {
+                    if (animation.progress < animation.duration) {
+                        animation.progress++;
+                    } else {
+                        this.routeAnimations.delete(key);
+                    }
+                });
+
+                // Draw routes
+                this.routes.forEach(route => {
+                    const routeKey = `${Math.min(route.from.id, route.to.id)}-${Math.max(route.from.id, route.to.id)}`;
+                    const isBlocked = this.blockedRoutes.has(routeKey);
+                    const isInPath = this.currentPath.length > 1 && this.isRouteInPath(route);
+                    const animation = this.routeAnimations.get(`${route.from.id}-${route.to.id}`) || 
+                                    this.routeAnimations.get(`${route.to.id}-${route.from.id}`);
+
+                    let drawProgress = 1;
+                    if (animation) {
+                        drawProgress = animation.progress / animation.duration;
+                    }
+
+                    const endX = route.from.x + (route.to.x - route.from.x) * drawProgress;
+                    const endY = route.from.y + (route.to.y - route.from.y) * drawProgress;
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(route.from.x, route.from.y);
+                    this.ctx.lineTo(endX, endY);
+                    
+                    if (isInPath) {
+                        this.ctx.shadowColor = '#9C27B0';
+                        this.ctx.shadowBlur = 15;
+                        this.ctx.strokeStyle = '#9C27B0';
+                        this.ctx.lineWidth = 8;
+                        this.ctx.stroke();
+                        
+                        this.ctx.shadowBlur = 0;
+                        this.ctx.strokeStyle = '#E1BEE7';
+                        this.ctx.lineWidth = 4;
+                        this.ctx.stroke();
+                    } else if (isBlocked) {
+                        this.ctx.shadowColor = '#f44336';
+                        this.ctx.shadowBlur = 10;
+                        this.ctx.strokeStyle = '#f44336';
+                        this.ctx.lineWidth = 6;
+                        this.ctx.setLineDash([15, 10]);
+                        this.ctx.stroke();
+                        this.ctx.setLineDash([]);
+                    } else {
+                        this.ctx.shadowColor = '#2196F3';
+                        this.ctx.shadowBlur = 8;
+                        this.ctx.strokeStyle = '#2196F3';
+                        this.ctx.lineWidth = 4;
+                        this.ctx.stroke();
+                    }
+                    
+                    this.ctx.shadowBlur = 0;
+
+                    // Draw distance label if route is fully drawn
+                    if (drawProgress === 1) {
+                        const midX = (route.from.x + route.to.x) / 2;
+                        const midY = (route.from.y + route.to.y) / 2;
+                        
+                        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                        this.ctx.beginPath();
+                        this.ctx.arc(midX, midY, 15, 0, 2 * Math.PI);
+                        this.ctx.fill();
+                        this.ctx.strokeStyle = '#333';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.stroke();
+                        
+                        this.ctx.fillStyle = '#333';
+                        this.ctx.font = 'bold 12px Inter';
+                        this.ctx.textAlign = 'center';
+                        this.ctx.fillText(route.weight, midX, midY + 4);
+                    }
+                });
+
+                // Draw bus trail
+                if (this.busPosition && this.busPosition.trail) {
+                    this.busPosition.trail.forEach((point, index) => {
+                        const alpha = point.life / 20;
+                        this.ctx.fillStyle = `rgba(255, 152, 0, ${alpha * 0.6})`;
+                        this.ctx.beginPath();
+                        this.ctx.arc(point.x, point.y, 3 * alpha, 0, 2 * Math.PI);
+                        this.ctx.fill();
+                    });
+                }
+
+                // Draw bus stops
+                this.stops.forEach(stop => {
+                    const isSelected = this.selectedStops.some(s => s.id === stop.id);
+                    const time = Date.now() / 1000;
+                    const pulseSize = 2 + Math.sin(time * 2 + stop.pulsePhase) * 3;
+                    
+                    // Outer glow
+                    this.ctx.shadowColor = isSelected ? '#FF5722' : '#4CAF50';
+                    this.ctx.shadowBlur = 20;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(stop.x, stop.y, 32 + pulseSize, 0, 2 * Math.PI);
+                    this.ctx.fillStyle = isSelected ? 'rgba(255, 87, 34, 0.3)' : 'rgba(76, 175, 80, 0.3)';
+                    this.ctx.fill();
+                    
+                    // Main stop circle
+                    this.ctx.beginPath();
+                    this.ctx.arc(stop.x, stop.y, 28, 0, 2 * Math.PI);
+                    const gradient = this.ctx.createRadialGradient(stop.x, stop.y, 0, stop.x, stop.y, 28);
+                    gradient.addColorStop(0, isSelected ? '#FF7043' : '#66BB6A');
+                    gradient.addColorStop(1, isSelected ? '#FF5722' : '#4CAF50');
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.fill();
+                    this.ctx.strokeStyle = '#fff';
+                    this.ctx.lineWidth = 4;
+                    this.ctx.stroke();
+                    
+                    this.ctx.shadowBlur = 0;
+
+                    // Stop number
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = 'bold 16px Inter';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(stop.id + 1, stop.x, stop.y + 5);
+
+                    // Stop name label
+                    const textWidth = this.ctx.measureText(stop.name).width;
+                    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    this.ctx.fillRect(stop.x - textWidth/2 - 8, stop.y - 50, textWidth + 16, 20);
+                    
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = 'bold 12px Inter';
+                    this.ctx.fillText(stop.name, stop.x, stop.y - 35);
+                });
+
+                // Draw bus
+                if (this.busPosition) {
+                    const time = Date.now() / 1000;
+                    const bounce = Math.sin(time * 8) * 2;
+                    
+                    // Bus shadow
+                    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                    this.ctx.beginPath();
+                    this.ctx.ellipse(this.busPosition.x, this.busPosition.y + 5, 18, 6, 0, 0, 2 * Math.PI);
+                    this.ctx.fill();
+                    
+                    // Bus glow
+                    this.ctx.shadowColor = '#FF9800';
+                    this.ctx.shadowBlur = 25;
+                    
+                    // Bus body
+                    this.ctx.beginPath();
+                    this.ctx.arc(this.busPosition.x, this.busPosition.y + bounce, 20, 0, 2 * Math.PI);
+                    const busGradient = this.ctx.createRadialGradient(
+                        this.busPosition.x, this.busPosition.y + bounce, 0,
+                        this.busPosition.x, this.busPosition.y + bounce, 20
+                    );
+                    busGradient.addColorStop(0, '#FFB74D');
+                    busGradient.addColorStop(1, '#FF9800');
+                    this.ctx.fillStyle = busGradient;
+                    this.ctx.fill();
+                    this.ctx.strokeStyle = '#F57C00';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.stroke();
+                    
+                    this.ctx.shadowBlur = 0;
+
+                    // Bus emoji
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = 'bold 24px Inter';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('🚌', this.busPosition.x, this.busPosition.y + bounce + 8);
+                }
+            }
+
+            drawSparkles() {
+                this.sparkles.forEach(sparkle => {
+                    const alpha = sparkle.life / sparkle.maxLife;
+                    const size = 2 + (1 - alpha) * 3;
+                    
+                    this.ctx.fillStyle = sparkle.color.replace(')', `, ${alpha})`).replace('hsl', 'hsla');
+                    this.ctx.beginPath();
+                    this.ctx.arc(sparkle.x, sparkle.y, size, 0, 2 * Math.PI);
+                    this.ctx.fill();
+                    
+                    // Occasional star sparkle
+                    if (Math.random() < 0.1) {
+                        this.ctx.strokeStyle = sparkle.color;
+                        this.ctx.lineWidth = 1;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(sparkle.x - size * 2, sparkle.y);
+                        this.ctx.lineTo(sparkle.x + size * 2, sparkle.y);
+                        this.ctx.moveTo(sparkle.x, sparkle.y - size * 2);
+                        this.ctx.lineTo(sparkle.x, sparkle.y + size * 2);
+                        this.ctx.stroke();
+                    }
+                });
+            }
+
+            isRouteInPath(route) {
+                if (this.currentPath.length < 2) return false;
+                
+                for (let i = 0; i < this.currentPath.length - 1; i++) {
+                    const current = this.currentPath[i];
+                    const next = this.currentPath[i + 1];
+                    
+                    if ((current.id === route.from.id && next.id === route.to.id) ||
+                        (current.id === route.to.id && next.id === route.from.id)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        window.addEventListener('load', () => {
+            createParticles();
+            new BusNavigator();
+        });
+    </script>
+</body>
+</html>
